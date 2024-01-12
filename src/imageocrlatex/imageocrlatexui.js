@@ -193,16 +193,21 @@ export default class ImageOCRLatexUI extends Plugin {
 
 						let result = data.math_text.data;
 						// eslint-disable-next-line prefer-const
-						for ( let latex of latexes ) {
-							result = result.replace( latex, `<span class="math-tex">${ latex }</span>` );
+						for ( let latex of [ ...new Set( latexes ) ] ) {
+							result = result.replaceAll( latex, `<span class="math-tex">${ latex }</span>` );
 						}
 
 						result = `<p>${ result }</p>`;
 						const labeledFieldView = labeledInput.fieldView.element.closest( '.ck-labeled-field-view' );
+						// eslint-disable-next-line no-undef
+						const elements = window.document.getElementsByClassName( 'ck-labeled-field-view-math-preview' );
 						if ( labeledFieldView ) {
-							// eslint-disable-next-line no-undef
-							const newElement = window.document.createElement( 'p' );
-							newElement.className = 'ck-labeled-field-view-math-preview';
+							let newElement = elements[ 0 ];
+							if ( !newElement ) {
+								// eslint-disable-next-line no-undef
+								newElement = window.document.createElement( 'p' );
+								newElement.className = 'ck-labeled-field-view-math-preview';
+							}
 
 							newElement.innerHTML = result;
 							labeledFieldView.append( newElement );
