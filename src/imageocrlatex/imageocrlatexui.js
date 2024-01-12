@@ -168,27 +168,56 @@ export default class ImageOCRLatexUI extends Plugin {
 		const editor = this.editor;
 		const command = editor.commands.get( 'imageOCRLatex' );
 		const labeledInput = this._form.labeledInput;
+		const imgUrl = command.value;
 
-		console.log(command.value)
-		this._form.disableCssTransitions();
+		this._downloadImage( imgUrl )
+			.then( blob => {
+			// Create FormData and append the Blob
+				// eslint-disable-next-line no-undef
+				const formData = new FormData();
+				formData.append( 'file', blob, 'image.jpg' );
 
-		if ( !this._isInBalloon ) {
-			this._balloon.add( {
-				view: this._form,
-				position: getBalloonPositionData( editor )
+				// Send FormData to the server
+				this._sendFormData( formData )
+					.then( data => {
+						this._form.disableCssTransitions();
+
+						if ( !this._isInBalloon ) {
+							this._balloon.add( {
+								view: this._form,
+								position: getBalloonPositionData( editor )
+							} );
+						}
+
+						const latexes = data.latex_maths.data;
+
+						let result = data.math_text.data;
+						// eslint-disable-next-line prefer-const
+						for ( let latex of latexes ) {
+							result = result.replace( latex, `<span class="math-tex">${ latex }</span>` );
+						}
+
+						result = `<p>${ result }</p>`;
+						// Make sure that each time the panel shows up, the field remains in sync with the value of
+						// the command. If the user typed in the input, then canceled the balloon (`labeledInput#value`
+						// stays unaltered) and re-opened it without changing the value of the command, they would see the
+						// old value instead of the actual value of the command.
+						// https://github.com/ckeditor/ckeditor5-image/issues/114
+						labeledInput.fieldView.value = labeledInput.fieldView.element.value = result || '';
+
+						this._form.labeledInput.fieldView.select();
+
+						this._form.enableCssTransitions();
+					} )
+					.catch( error => {
+						// eslint-disable-next-line no-alert, no-undef
+						window.alert( error );
+					} );
+			} )
+			.catch( error => {
+				// eslint-disable-next-line no-alert, no-undef
+				window.alert( error );
 			} );
-		}
-
-		// Make sure that each time the panel shows up, the field remains in sync with the value of
-		// the command. If the user typed in the input, then canceled the balloon (`labeledInput#value`
-		// stays unaltered) and re-opened it without changing the value of the command, they would see the
-		// old value instead of the actual value of the command.
-		// https://github.com/ckeditor/ckeditor5-image/issues/114
-		labeledInput.fieldView.value = labeledInput.fieldView.element.value = command.value || '';
-
-		this._form.labeledInput.fieldView.select();
-
-		this._form.enableCssTransitions();
 	}
 
 	/**
@@ -213,6 +242,34 @@ export default class ImageOCRLatexUI extends Plugin {
 		if ( focusEditable ) {
 			this.editor.editing.view.focus();
 		}
+	}
+
+	async _downloadImage( url ) {
+		// eslint-disable-next-line no-undef
+		const response = await fetch( url );
+		if ( !response.ok ) {
+			// eslint-disable-next-line no-alert, no-undef
+			throw new Error( ` Error downloading image. Status: ${ response.status } ` );
+		}
+		return await response.blob();
+	}
+
+	_sendFormData( formData ) {
+		// eslint-disable-next-line no-undef
+		return fetch( 'http://dica-server:8010/api/v1/analyze', { method: 'POST', body: formData } )
+			.then( response => {
+				if ( !response.ok ) {
+					return response.json().then( errorData => {
+						throw new Error( `HTTP error! Status: ${ response.status }, Message: ${ errorData.detail }` );
+					} );
+				}
+				return response.json();
+			} )
+			.then( data => data )
+			.catch( error => {
+				// eslint-disable-next-line no-alert, no-undef
+				throw new Error( error );
+			} );
 	}
 
 	/**
