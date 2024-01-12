@@ -113,7 +113,7 @@ export default class TextAlternativeFormView extends View {
 			attributes: {
 				class: [
 					'ck',
-					'ck-text-alternative-form',
+					'ck-text-ocr-form',
 					'ck-responsive-form'
 				],
 

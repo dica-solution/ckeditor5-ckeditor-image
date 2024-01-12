@@ -30,3 +30,47 @@
 		}
 	}
 }
+
+.ck.ck-text-ocr-form {
+	width: 48vw;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+
+	& .ck-labeled-field-view {
+		width: 100%;
+		display: inline-block;
+	}
+
+	& .ck-labeled-field-view input {
+		width: inherit;
+	}
+
+	& .ck-labeled-field-view {
+		.ck-labeled-field-view-math-preview {
+			height: auto;
+			margin-top: 8px;
+			& p {
+				width: inherit;
+				word-wrap: break-word;
+				white-space: normal;
+			}
+		}
+	}
+
+	& .ck-label {
+		display: none;
+	}
+
+	@mixin ck-media-phone {
+		flex-wrap: wrap;
+
+		& .ck-labeled-field-view {
+			flex-basis: 100%;
+		}
+
+		& .ck-button {
+			flex-basis: 50%;
+		}
+	}
+}

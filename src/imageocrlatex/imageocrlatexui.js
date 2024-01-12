@@ -198,13 +198,24 @@ export default class ImageOCRLatexUI extends Plugin {
 						}
 
 						result = `<p>${ result }</p>`;
+						const labeledFieldView = labeledInput.fieldView.element.closest( '.ck-labeled-field-view' );
+						if ( labeledFieldView ) {
+							// eslint-disable-next-line no-undef
+							const newElement = window.document.createElement( 'p' );
+							newElement.className = 'ck-labeled-field-view-math-preview';
+
+							newElement.innerHTML = result;
+							labeledFieldView.append( newElement );
+							// eslint-disable-next-line no-undef
+							window.MathJax.typeset( [ newElement ] );
+						}
+
 						// Make sure that each time the panel shows up, the field remains in sync with the value of
 						// the command. If the user typed in the input, then canceled the balloon (`labeledInput#value`
 						// stays unaltered) and re-opened it without changing the value of the command, they would see the
 						// old value instead of the actual value of the command.
 						// https://github.com/ckeditor/ckeditor5-image/issues/114
 						labeledInput.fieldView.value = labeledInput.fieldView.element.value = result || '';
-
 						this._form.labeledInput.fieldView.select();
 
 						this._form.enableCssTransitions();
