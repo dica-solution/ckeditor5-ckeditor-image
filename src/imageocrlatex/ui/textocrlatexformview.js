@@ -203,7 +203,7 @@ export default class TextAlternativeFormView extends View {
 		const t = this.locale.t;
 		const labeledInput = new LabeledFieldView( this.locale, createLabeledInputText );
 
-		labeledInput.label = t( 'Text alternative' );
+		labeledInput.label = t( 'OCR Result' );
 
 		return labeledInput;
 	}

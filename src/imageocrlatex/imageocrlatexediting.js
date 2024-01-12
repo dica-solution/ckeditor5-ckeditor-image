@@ -8,7 +8,7 @@
  */
 
 import { Plugin } from 'ckeditor5/src/core';
-import ImageOCRLatexCommand from './imagetextalternativecommand';
+import ImageOCRLatexCommand from './imageocrlatexcommand';
 import ImageUtils from '../imageutils';
 
 /**

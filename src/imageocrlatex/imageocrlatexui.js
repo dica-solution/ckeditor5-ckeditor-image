@@ -10,7 +10,7 @@
 import { Plugin, icons } from 'ckeditor5/src/core';
 import { ButtonView, ContextualBalloon, clickOutsideHandler } from 'ckeditor5/src/ui';
 
-import TextAlternativeFormView from './ui/textalternativeformview';
+import TextAlternativeFormView from './ui/textocrlatexformview';
 import { repositionContextualBalloon, getBalloonPositionData } from '../image/ui/utils';
 
 /**
