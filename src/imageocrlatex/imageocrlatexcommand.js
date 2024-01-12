@@ -45,16 +45,16 @@ export default class ImageTextAlternativeCommand extends Command {
 	 *
 	 * @fires execute
 	 * @param {Object} options
-	 * @param {String} options.newValue The new value of the `alt` attribute to set.
+	 * @param {String} options.newValue The new value of the `html ocr result` to insert.
 	 */
 	execute( options ) {
 		const editor = this.editor;
-		const imageUtils = editor.plugins.get( 'ImageUtils' );
 		const model = editor.model;
-		const imageElement = imageUtils.getClosestSelectedImageElement( model.document.selection );
+		model.change( () => {
+			const viewFragment = editor.data.processor.toView( options.newValue );
+			const modelFragment = editor.data.toModel( viewFragment );
 
-		model.change( writer => {
-			writer.setAttribute( 'alt', options.newValue, imageElement );
+			model.insertContent( modelFragment, model.document.selection );
 		} );
 	}
 }
