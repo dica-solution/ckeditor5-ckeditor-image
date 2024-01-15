@@ -272,7 +272,7 @@ export default class ImageOCRLatexUI extends Plugin {
 
 	_sendFormData( formData ) {
 		// eslint-disable-next-line no-undef
-		return fetch( 'http://dica-server:8010/api/v1/analyze', { method: 'POST', body: formData } )
+		return fetch( 'https://internal-quizz.giainhanh.io/api/paper-exams/ocr-image', { method: 'POST', body: formData } )
 			.then( response => {
 				if ( !response.ok ) {
 					return response.json().then( errorData => {
