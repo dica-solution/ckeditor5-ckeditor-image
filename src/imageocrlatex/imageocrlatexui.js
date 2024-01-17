@@ -70,8 +70,8 @@ export default class ImageOCRLatexUI extends Plugin {
 			const view = new ButtonView( locale );
 
 			view.set( {
-				label: t( 'Change image text alternative' ),
-				icon: icons.eraser,
+				label: t( 'Convert image with formula to text' ),
+				icon: icons.importExport,
 				tooltip: true
 			} );
 
@@ -173,7 +173,7 @@ export default class ImageOCRLatexUI extends Plugin {
 
 		this._ocrImage( { url: imgUrl } )
 			.then( data => {
-				const latexes = data.latex_maths.data;
+				// const latexes = data.latex_maths.data;
 				let result = data.math_text.data;
 				this._form.disableCssTransitions();
 
@@ -184,12 +184,8 @@ export default class ImageOCRLatexUI extends Plugin {
 					} );
 				}
 
-				if ( latexes.length > 0 ) {
-					// eslint-disable-next-line prefer-const
-					for ( let latex of [ ...new Set( latexes ) ] ) {
-						result = result.replaceAll( latex, `<span class="math-tex">${ latex }</span>` );
-					}
-				}
+				result = result.replaceAll( '<', '\\lt ' ).replace( '>', '\\gt ' )
+					.replace( /\\\((.*?)\\\)/gs, '<span class="math-tex">\\($1\\)</span>' );
 				result = `<p>${ result }</p>`;
 				const labeledFieldView = labeledInput.fieldView.element.closest( '.ck-labeled-field-view' );
 				// eslint-disable-next-line no-undef
