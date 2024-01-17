@@ -170,65 +170,52 @@ export default class ImageOCRLatexUI extends Plugin {
 		const labeledInput = this._form.labeledInput;
 		const imgUrl = command.value;
 
-		this._downloadImage( imgUrl )
-			.then( blob => {
-			// Create FormData and append the Blob
-				// eslint-disable-next-line no-undef
-				const formData = new FormData();
-				formData.append( 'file', blob, 'image.jpg' );
+		this._ocrImage( { url: imgUrl } )
+			.then( data => {
+				const latexes = data.latex_maths.data;
+				let result = data.math_text.data;
+				this._form.disableCssTransitions();
 
-				// Send FormData to the server
-				this._sendFormData( formData )
-					.then( data => {
-						this._form.disableCssTransitions();
-
-						if ( !this._isInBalloon ) {
-							this._balloon.add( {
-								view: this._form,
-								position: getBalloonPositionData( editor )
-							} );
-						}
-
-						const latexes = data.latex_maths.data;
-
-						let result = data.math_text.data;
-						// eslint-disable-next-line prefer-const
-						for ( let latex of [ ...new Set( latexes ) ] ) {
-							result = result.replaceAll( latex, `<span class="math-tex">${ latex }</span>` );
-						}
-
-						result = `<p>${ result }</p>`;
-						const labeledFieldView = labeledInput.fieldView.element.closest( '.ck-labeled-field-view' );
-						// eslint-disable-next-line no-undef
-						const elements = window.document.getElementsByClassName( 'ck-labeled-field-view-math-preview' );
-						if ( labeledFieldView ) {
-							let newElement = elements[ 0 ];
-							if ( !newElement ) {
-								// eslint-disable-next-line no-undef
-								newElement = window.document.createElement( 'p' );
-								newElement.className = 'ck-labeled-field-view-math-preview';
-							}
-
-							newElement.innerHTML = result;
-							labeledFieldView.append( newElement );
-							// eslint-disable-next-line no-undef
-							window.MathJax.typeset( [ newElement ] );
-						}
-
-						// Make sure that each time the panel shows up, the field remains in sync with the value of
-						// the command. If the user typed in the input, then canceled the balloon (`labeledInput#value`
-						// stays unaltered) and re-opened it without changing the value of the command, they would see the
-						// old value instead of the actual value of the command.
-						// https://github.com/ckeditor/ckeditor5-image/issues/114
-						labeledInput.fieldView.value = labeledInput.fieldView.element.value = result || '';
-						this._form.labeledInput.fieldView.select();
-
-						this._form.enableCssTransitions();
-					} )
-					.catch( error => {
-						// eslint-disable-next-line no-alert, no-undef
-						window.alert( error );
+				if ( !this._isInBalloon ) {
+					this._balloon.add( {
+						view: this._form,
+						position: getBalloonPositionData( editor )
 					} );
+				}
+
+				if ( latexes.length > 0 ) {
+					// eslint-disable-next-line prefer-const
+					for ( let latex of [ ...new Set( latexes ) ] ) {
+						result = result.replaceAll( latex, `<span class="math-tex">${ latex }</span>` );
+					}
+				}
+				result = `<p>${ result }</p>`;
+				const labeledFieldView = labeledInput.fieldView.element.closest( '.ck-labeled-field-view' );
+				// eslint-disable-next-line no-undef
+				const elements = window.document.getElementsByClassName( 'ck-labeled-field-view-math-preview' );
+				if ( labeledFieldView ) {
+					let newElement = elements[ 0 ];
+					if ( !newElement ) {
+						// eslint-disable-next-line no-undef
+						newElement = window.document.createElement( 'p' );
+						newElement.className = 'ck-labeled-field-view-math-preview';
+					}
+
+					newElement.innerHTML = result;
+					labeledFieldView.append( newElement );
+					// eslint-disable-next-line no-undef
+					window.MathJax.typeset( [ newElement ] );
+				}
+
+				// Make sure that each time the panel shows up, the field remains in sync with the value of
+				// the command. If the user typed in the input, then canceled the balloon (`labeledInput#value`
+				// stays unaltered) and re-opened it without changing the value of the command, they would see the
+				// old value instead of the actual value of the command.
+				// https://github.com/ckeditor/ckeditor5-image/issues/114
+				labeledInput.fieldView.value = labeledInput.fieldView.element.value = result || '';
+				this._form.labeledInput.fieldView.select();
+
+				this._form.enableCssTransitions();
 			} )
 			.catch( error => {
 				// eslint-disable-next-line no-alert, no-undef
@@ -260,19 +247,18 @@ export default class ImageOCRLatexUI extends Plugin {
 		}
 	}
 
-	async _downloadImage( url ) {
+	_ocrImage( data ) {
 		// eslint-disable-next-line no-undef
-		const response = await fetch( url );
-		if ( !response.ok ) {
-			// eslint-disable-next-line no-alert, no-undef
-			throw new Error( ` Error downloading image. Status: ${ response.status } ` );
-		}
-		return await response.blob();
-	}
-
-	_sendFormData( formData ) {
-		// eslint-disable-next-line no-undef
-		return fetch( 'https://internal-quizz.giainhanh.io/api/paper-exams/ocr-image', { method: 'POST', body: formData } )
+		return fetch(
+			'http://localhost:1337/api/paper-exams/ocr-image',
+			{
+				method: 'POST',
+				body: JSON.stringify( data ),
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			}
+		)
 			.then( response => {
 				if ( !response.ok ) {
 					return response.json().then( errorData => {
