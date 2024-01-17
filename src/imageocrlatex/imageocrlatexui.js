@@ -12,7 +12,6 @@ import { ButtonView, ContextualBalloon, clickOutsideHandler } from 'ckeditor5/sr
 
 import TextAlternativeFormView from './ui/textocrlatexformview';
 import { repositionContextualBalloon, getBalloonPositionData } from '../image/ui/utils';
-import { HOST } from './env';
 
 /**
  * The image text alternative UI plugin.
@@ -247,7 +246,8 @@ export default class ImageOCRLatexUI extends Plugin {
 	_ocrImage( data ) {
 		// eslint-disable-next-line no-undef
 		return fetch(
-			`${ HOST }/api/paper-exams/ocr-image`,
+			// eslint-disable-next-line no-undef
+			`https://${ window.location.hostname }/api/paper-exams/ocr-image`,
 			{
 				method: 'POST',
 				body: JSON.stringify( data ),
