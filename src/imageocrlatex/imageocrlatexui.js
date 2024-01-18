@@ -243,7 +243,7 @@ export default class ImageOCRLatexUI extends Plugin {
 		// eslint-disable-next-line no-undef
 		return fetch(
 			// eslint-disable-next-line no-undef
-			`https://${ window.location.hostname }/api/paper-exams/ocr-image`,
+			`${ window.location.protocol }//${ window.location.hostname }:${ window.location.port }/api/ocr/image`,
 			{
 				method: 'POST',
 				body: JSON.stringify( data ),
