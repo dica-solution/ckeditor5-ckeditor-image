@@ -171,9 +171,8 @@ export default class ImageOCRLatexUI extends Plugin {
 		const imgUrl = command.value;
 
 		this._ocrImage( { url: imgUrl } )
-			.then( data => {
-				// const latexes = data.latex_maths.data;
-				let result = data.math_text.data;
+			.then( ( { data } ) => {
+				const result = `<p>${ data }</p>`;
 				this._form.disableCssTransitions();
 
 				if ( !this._isInBalloon ) {
@@ -183,9 +182,6 @@ export default class ImageOCRLatexUI extends Plugin {
 					} );
 				}
 
-				result = result.replaceAll( '<', '\\lt ' ).replace( '>', '\\gt ' )
-					.replace( /\\\((.*?)\\\)/gs, '<span class="math-tex">\\($1\\)</span>' );
-				result = `<p>${ result }</p>`;
 				const labeledFieldView = labeledInput.fieldView.element.closest( '.ck-labeled-field-view' );
 				// eslint-disable-next-line no-undef
 				const elements = window.document.getElementsByClassName( 'ck-labeled-field-view-math-preview' );
