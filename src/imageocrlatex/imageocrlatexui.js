@@ -243,12 +243,14 @@ export default class ImageOCRLatexUI extends Plugin {
 		// eslint-disable-next-line no-undef
 		return fetch(
 			// eslint-disable-next-line no-undef
-			`${ window.location.protocol }//${ window.location.hostname }:${ window.location.port }/api/ocr/image`,
+			`${ window.location.protocol }//${ window.location.hostname }:${ window.location.port }/api-middleware-plugin/ocr`,
 			{
 				method: 'POST',
 				body: JSON.stringify( data ),
 				headers: {
-					'Content-Type': 'application/json'
+					'Content-Type': 'application/json',
+					// eslint-disable-next-line no-undef
+					'Authorization': window.sessionStorage.getItem( 'jwtToken' )
 				}
 			}
 		)
