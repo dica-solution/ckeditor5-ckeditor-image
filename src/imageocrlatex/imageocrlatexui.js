@@ -250,7 +250,7 @@ export default class ImageOCRLatexUI extends Plugin {
 				headers: {
 					'Content-Type': 'application/json',
 					// eslint-disable-next-line no-undef
-					'Authorization': JSON.parse( window.sessionStorage.getItem( 'jwtToken' ) )
+					'Authorization': `Bearer ${ JSON.parse( window.sessionStorage.getItem( 'jwtToken' ) ) }`
 				}
 			}
 		)
